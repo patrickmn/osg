@@ -1,0 +1,30 @@
+Optimus Sitemap Generator (OSG) is a universal sitemap generator that works by
+crawling your website, avoiding excessive bandwidth overhead by only scanning
+the contents of pages that have changed since the last time the sitemap was
+generated.
+
+== Installation
+
+Download OSG from http://patrickmylund.com/projects/osg/
+
+If you have Go installed, you can run: go get github.com/pmylund/osg
+(an osg binary will be added to your GOPATH/bin folder)
+
+Note: You do not need to have Go installed to run the stand-alone version.
+
+== Usage
+
+OSG takes the name of a sitemap, and a list of the pages from which crawling
+should begin. Any files linked to will be included in the sitemap, and pages'
+links will be followed automatically. OSG will not crawl outside the domain
+of a given link (to do this, list a page on each domain to include in the
+sitemap.)
+
+  ./osg sitemap.xml example.com
+  ./osg sitemap.xml example.com/category1 example.com/category2
+  ./osg -v sitemap.xml example.com
+
+Run osg without any arguments for details, like how to ignore robots directives
+like nofollow, or how to exclude particular URL patterns.
+
+See http://patrickmylund.com/projects/osg/ for more information.
