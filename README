@@ -1,5 +1,5 @@
-Optimus Sitemap Generator (OSG) is a universal sitemap generator that works by
-crawling your website, avoiding excessive bandwidth overhead by only scanning
+Optimus Sitemap Generator (OSG) is a universal XML sitemap generator that works
+by crawling your website, avoiding excessive bandwidth overhead by only scanning
 the contents of pages that have changed since the last time the sitemap was
 generated.
 
