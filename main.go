@@ -27,7 +27,7 @@ var (
 	MaxDepth                  = 500
 	throttle          *uint   = flag.Uint("c", 1, "pages to crawl at once")
 	useragent         *string = flag.String("ua", defaultUA, "User-Agent header to send")
-	gzipLevel         *int    = flag.Int("gzip-level", gzip.DefaultCompression, "compression level when generating a sitemap.xml.gz file (1 = fastest, 9 = best)")
+	gzipLevel         *int    = flag.Int("gzip-level", gzip.DefaultCompression, "compression level when generating a sitemap.xml.gz file (1 = fastest, 9 = best, -1 = default)")
 	verbose           *bool   = flag.Bool("v", false, "show additional information about the generation process")
 	nowarn            *bool   = flag.Bool("no-warn", false, "do not warn about pages that were not opened successfully")
 	noRobots          *bool   = flag.Bool("no-robots", false, "ignores domains' robots.txt and page nofollow directives")
