@@ -29,8 +29,9 @@ var (
 	useragent         *string = flag.String("ua", defaultUA, "User-Agent header to send")
 	gzipLevel         *int    = flag.Int("gzip-level", gzip.DefaultCompression, "compression level when generating a sitemap.xml.gz file (1 = fastest, 9 = best, -1 = default)")
 	verbose           *bool   = flag.Bool("v", false, "show additional information about the generation process")
-	nowarn            *bool   = flag.Bool("no-warn", false, "do not warn about pages that were not opened successfully")
+	nowarn            *bool   = flag.Bool("no-warn", false, "don't warn about pages that were not opened successfully")
 	noRobots          *bool   = flag.Bool("no-robots", false, "ignores domains' robots.txt and page nofollow directives")
+	noLastmod         *bool   = flag.Bool("no-lastmod", false, "don't include last-modified information in sitemap entries")
 )
 
 var (
@@ -401,7 +402,11 @@ func generateSitemap(path string, urls []*url.URL) (*Urlset, error) {
 		if res != nil {
 			u := Url{
 				Loc:     res.Loc,
-				Lastmod: res.Lastmod,
+			}
+			if *noLastmod {
+				u.Lastmod = ""
+			} else {
+				u.Lastmod = res.Lastmod
 			}
 			sm.Url = append(sm.Url, u)
 		}
