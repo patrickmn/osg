@@ -26,6 +26,7 @@ var (
 	SitemapTimeFormat         = strings.Replace(time.RFC3339, "Z", "+", -1)
 	MaxDepth                  = 500
 	throttle          *uint   = flag.Uint("c", 1, "pages to crawl at once")
+	maxCrawl          *uint   = flag.Uint("max-crawl", 0, "maximum number of pages to crawl (0 = unlimited)")
 	useragent         *string = flag.String("ua", defaultUA, "User-Agent header to send")
 	gzipLevel         *int    = flag.Int("gzip-level", gzip.DefaultCompression, "compression level when generating a sitemap.xml.gz file (1 = fastest, 9 = best, -1 = default)")
 	verbose           *bool   = flag.Bool("v", false, "show additional information about the generation process")
@@ -35,11 +36,12 @@ var (
 )
 
 var (
-	sem    chan bool
-	client = http.DefaultClient
-	all    = map[string]*Result{}
-	mu     = sync.Mutex{}
-	roots  []*url.URL
+	oneCrawl chan bool
+	sem      chan bool
+	client   = http.DefaultClient
+	all      = map[string]*Result{}
+	mu       = sync.Mutex{}
+	roots    []*url.URL
 )
 
 type TagType int
@@ -106,6 +108,12 @@ func (c *Crawler) Crawl(u *url.URL, root *url.URL, lastmod string) {
 	defer func() {
 		c.Ch <- r
 	}()
+	if *maxCrawl > 0 {
+		_, ok := <-oneCrawl
+		if !ok {
+			return
+		}
+	}
 	if *verbose {
 		log.Println("Opening", s)
 	}
@@ -290,23 +298,17 @@ L:
 	return links
 }
 
-type Sitemap struct {
-	Loc string `xml:"loc"`
-	// Lastmod string `xml:"lastmod"`
-}
-
 type Url struct {
 	Loc     string `xml:"loc"`
-	Lastmod string `xml:"lastmod"`
+	Lastmod string `xml:"lastmod,omitempty"`
 	// Changefreq string  `xml:"changefreq"`
 	// Priority   float64 `xml:"priority"`
 }
 
 type Urlset struct {
 	// TODO: How to add Schema links/info?
-	XMLName xml.Name  `xml:"urlset"`
-	Sitemap []Sitemap `xml:"sitemap"`
-	Url     []Url     `xml:"url"`
+	XMLName xml.Name `xml:"urlset"`
+	Url     []Url    `xml:"url"`
 }
 
 func Get(url string, ifmod *time.Time) (*http.Response, error) {
@@ -401,7 +403,7 @@ func generateSitemap(path string, urls []*url.URL) (*Urlset, error) {
 		}
 		if res != nil {
 			u := Url{
-				Loc:     res.Loc,
+				Loc: res.Loc,
 			}
 			if *noLastmod {
 				u.Lastmod = ""
@@ -457,6 +459,18 @@ func main() {
 		urls = append(urls, u)
 	}
 
+	if *maxCrawl > 0 {
+		oneCrawl = make(chan bool)
+		go func() {
+			for i := uint(0); i < *maxCrawl; i++ {
+				oneCrawl <- true
+			}
+			if *verbose {
+				log.Println("Maximum crawl limit of", *maxCrawl, "reached; not crawling any more pages")
+			}
+			close(oneCrawl) // when channel is closed, crawler.Crawl will not open any more pages
+		}()
+	}
 	sm, err := generateSitemap(path, urls)
 	if err != nil {
 		log.Fatalln("Error generating sitemap:", err)
