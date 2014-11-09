@@ -34,6 +34,7 @@ var (
 	nowarn            *bool   = flag.Bool("no-warn", false, "don't warn about pages that were not opened successfully")
 	noRobots          *bool   = flag.Bool("no-robots", false, "ignores domains' robots.txt and page nofollow directives")
 	noLastmod         *bool   = flag.Bool("no-lastmod", false, "don't include last-modified information in sitemap entries")
+	indent            *bool   = flag.Bool("indent", false, "indent the entries with a tab")
 )
 
 var (
@@ -496,7 +497,11 @@ func main() {
 	}
 
 	fmt.Fprintf(f, `<?xml version="1.0" encoding="UTF-8"?>`)
-	err = xml.NewEncoder(f).Encode(sm)
+	enc := xml.NewEncoder(f)
+	if *indent {
+		enc.Indent("", "\t")
+	}
+	err = enc.Encode(sm)
 	if err != nil {
 		log.Fatalln("Couldn't serialize sitemap", path+":", err)
 	}
