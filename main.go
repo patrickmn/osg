@@ -1,6 +1,7 @@
 package main
 
 import (
+	"code.google.com/p/go.net/html"
 	"compress/gzip"
 	"encoding/xml"
 	"flag"
@@ -13,8 +14,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-
-	"code.google.com/p/go.net/html"
 )
 
 const (
