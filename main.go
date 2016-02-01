@@ -1,7 +1,7 @@
 package main
 
 import (
-	"code.google.com/p/go.net/html"
+	"github.com/golang/net/html"
 	"compress/gzip"
 	"encoding/xml"
 	"flag"
