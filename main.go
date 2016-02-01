@@ -1,11 +1,11 @@
 package main
 
 import (
-	"code.google.com/p/go.net/html"
 	"compress/gzip"
 	"encoding/xml"
 	"flag"
 	"fmt"
+	"github.com/golang/net/html"
 	"io"
 	"log"
 	"net/http"
