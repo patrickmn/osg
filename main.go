@@ -5,7 +5,7 @@ import (
 	"encoding/xml"
 	"flag"
 	"fmt"
-	"github.com/golang/net/html"
+	"golang.org/x/net/html"
 	"io"
 	"log"
 	"net/http"
