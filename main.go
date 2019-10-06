@@ -34,6 +34,7 @@ var (
 	noRobots          *bool   = flag.Bool("no-robots", false, "ignores domains' robots.txt and page nofollow directives")
 	noLastmod         *bool   = flag.Bool("no-lastmod", false, "don't include last-modified information in sitemap entries")
 	indent            *bool   = flag.Bool("indent", false, "indent the entries with a tab")
+	stylesheet        *string = flag.String("stylesheet", "", "optional URL to a stylesheet that should associated with the sitemap")
 )
 
 var (
@@ -307,9 +308,9 @@ type Url struct {
 }
 
 type Urlset struct {
-	// TODO: How to add Schema links/info?
-	XMLName xml.Name `xml:"urlset"`
-	Url     []Url    `xml:"url"`
+	XMLName           xml.Name `xml:"http://www.sitemaps.org/schemas/sitemap/0.9 urlset"`
+	XMLSchemaLocation string   `xml:"http://www.w3.org/2001/XMLSchema-instance schemaLocation,attr"`
+	Url               []Url    `xml:"url"`
 }
 
 func Get(url string, ifmod *time.Time) (*http.Response, error) {
@@ -397,6 +398,8 @@ func generateSitemap(path string, urls []*url.URL) (*Urlset, error) {
 	}()
 
 	sm := new(Urlset)
+	sm.XMLSchemaLocation = "http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd"
+
 	for {
 		res, ok := <-ch
 		if !ok {
@@ -495,7 +498,13 @@ func main() {
 		defer f.Close()
 	}
 
-	fmt.Fprintf(f, `<?xml version="1.0" encoding="UTF-8"?>`)
+	fmt.Fprintln(f, `<?xml version="1.0" encoding="UTF-8"?>`)
+	if len(*stylesheet) > 0 {
+		fmt.Fprintf(f, `<?xml-stylesheet type="text/xsl" href="`)
+		xml.EscapeText(f, []byte(*stylesheet))
+		fmt.Fprintln(f, `"?>`)
+	}
+
 	enc := xml.NewEncoder(f)
 	if *indent {
 		enc.Indent("", "\t")
