@@ -34,6 +34,7 @@ var (
 	noRobots          *bool   = flag.Bool("no-robots", false, "ignores domains' robots.txt and page nofollow directives")
 	noLastmod         *bool   = flag.Bool("no-lastmod", false, "don't include last-modified information in sitemap entries")
 	indent            *bool   = flag.Bool("indent", false, "indent the entries with a tab")
+	stylesheet        *string = flag.String("stylesheet", "", "optional URL to a stylesheet that should associated with the sitemap")
 )
 
 var (
@@ -497,7 +498,13 @@ func main() {
 		defer f.Close()
 	}
 
-	fmt.Fprintf(f, `<?xml version="1.0" encoding="UTF-8"?>`)
+	fmt.Fprintln(f, `<?xml version="1.0" encoding="UTF-8"?>`)
+	if len(*stylesheet) > 0 {
+		fmt.Fprintf(f, `<?xml-stylesheet type="text/xsl" href="`)
+		xml.EscapeText(f, []byte(*stylesheet))
+		fmt.Fprintln(f, `"?>`)
+	}
+
 	enc := xml.NewEncoder(f)
 	if *indent {
 		enc.Indent("", "\t")
