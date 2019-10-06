@@ -307,9 +307,9 @@ type Url struct {
 }
 
 type Urlset struct {
-	// TODO: How to add Schema links/info?
-	XMLName xml.Name `xml:"urlset"`
-	Url     []Url    `xml:"url"`
+	XMLName           xml.Name `xml:"http://www.sitemaps.org/schemas/sitemap/0.9 urlset"`
+	XMLSchemaLocation string   `xml:"http://www.w3.org/2001/XMLSchema-instance schemaLocation,attr"`
+	Url               []Url    `xml:"url"`
 }
 
 func Get(url string, ifmod *time.Time) (*http.Response, error) {
@@ -397,6 +397,8 @@ func generateSitemap(path string, urls []*url.URL) (*Urlset, error) {
 	}()
 
 	sm := new(Urlset)
+	sm.XMLSchemaLocation = "http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd"
+
 	for {
 		res, ok := <-ch
 		if !ok {
