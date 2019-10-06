@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -414,6 +415,11 @@ func generateSitemap(path string, urls []*url.URL) (*Urlset, error) {
 			sm.Url = append(sm.Url, u)
 		}
 	}
+
+	sort.SliceStable(sm.Url, func(i, j int) bool {
+		return sm.Url[i].Loc < sm.Url[j].Loc
+	})
+
 	return sm, nil
 }
 
