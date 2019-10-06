@@ -269,8 +269,17 @@ L:
 				}
 			} else if t.Type == A && t.Href != "" {
 				ignore := false
-				if t.Href[0] == '#' {
+				hashIndex := strings.Index(t.Href, "#")
+				if hashIndex == 0 {
+					if *verbose {
+						log.Println("Link to", t.Href, "on page", u, "has an anchor to itself; skipping link")
+					}
 					ignore = true
+				} else if hashIndex > 0 {
+					if *verbose {
+						log.Println("Link to", t.Href, "on page", u, "has an anchor to another page; removing fragment from URL")
+					}
+					t.Href = string(t.Href[0:hashIndex])
 				}
 				if strings.Contains(t.Rel, "nofollow") {
 					if *noRobots {
