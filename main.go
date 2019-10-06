@@ -132,7 +132,12 @@ func (c *Crawler) Crawl(u *url.URL, root *url.URL, lastmod string) {
 	r.Lastmod = lm.Format(SitemapTimeFormat)
 	ct := res.Header.Get("Content-Type")
 	var dontCrawl bool
-	if strings.HasPrefix(ct, "text/html") {
+	if res.StatusCode == http.StatusNotModified {
+		if *verbose {
+			log.Println("Not crawling", s, "(304 not modified)")
+		}
+		dontCrawl = true
+	} else if strings.HasPrefix(ct, "text/html") {
 		// Proceed
 	} else if strings.HasPrefix(ct, "text/xml") {
 		// TODO: Read sitemaps
