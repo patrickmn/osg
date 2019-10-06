@@ -23,7 +23,7 @@ const (
 
 var (
 	// Sitemap time format is 2012-05-06T02:23:17+00:00
-	SitemapTimeFormat         = strings.Replace(time.RFC3339, "Z", "+", -1)
+	SitemapTimeFormat         = strings.Replace(time.RFC3339, "Z", "-", -1)
 	MaxDepth                  = 500
 	throttle          *uint   = flag.Uint("c", 1, "pages to crawl at once")
 	maxCrawl          *uint   = flag.Uint("max-crawl", 0, "maximum number of pages to crawl (0 = unlimited)")
